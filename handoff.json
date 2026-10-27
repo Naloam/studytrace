@@ -1,0 +1,12 @@
+{
+  "competition_url": "https://launchpad-hacks.devpost.com/",
+  "goal": "StudyTrace: local evidence retrieval and bounded study planning, built in the current Codex conversation.",
+  "summary": "StudyTrace 已完成本地资料检索、原文引用、限时复习计划、持久化反馈与导出；使用 scikit-learn，不依赖新 API key。",
+  "external_requirements": [
+    "报名地域例外、费用与知识产权条款最终确认",
+    "MIT许可与公开源码已获用户批准，需核对实际公开链接可用",
+    "用户已完成报名，正式提交仍等待单独确认"
+  ],
+  "credentials_required": false,
+  "run_instructions": "在作品目录创建 Python 3.13 虚拟环境并安装 requirements.lock，执行 .venv/bin/uvicorn app:app --host 127.0.0.1 --port 8766 --no-access-log，打开 http://127.0.0.1:8766"
+}

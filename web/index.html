@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StudyTrace — Follow the evidence.</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <a href="/" class="brand"><span>▥</span> StudyTrace</a
+      ><span class="local"><i></i> LOCAL WORKSPACE · NO API KEY</span>
+    </header>
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">LESS GUESSING. MORE UNDERSTANDING.</div>
+          <h1>Go back to<br />the source.</h1>
+        </div>
+        <div class="hero-note">
+          <p>
+            Your notes. An exact passage.<br />A small plan you can actually
+            finish.
+          </p>
+          <span>Private evidence retrieval and revision planning</span>
+        </div>
+      </section>
+      <div class="stats">
+        <div><b id="document-count">0</b> sources</div>
+        <div><b id="plan-count">0</b> study plans</div>
+        <div><b id="review-count">0</b> review actions</div>
+        <span>Text retrieval model · runs on this device</span>
+      </div>
+      <div id="notice" role="status"></div>
+      <div class="layout">
+        <aside class="source-panel panel">
+          <div class="section-head">
+            <span class="step">01 / YOUR MATERIAL</span
+            ><button class="text" id="load-demo">Load demo notes</button>
+          </div>
+          <h2>Build your source shelf.</h2>
+          <p class="muted">
+            Paste notes you have permission to use. Nothing is uploaded to a
+            model service.
+          </p>
+          <form id="document-form">
+            <label
+              >Note title<input
+                id="document-title"
+                maxlength="150"
+                required
+                placeholder="e.g. Database revision" /></label
+            ><label
+              >Plain-text notes<textarea
+                id="document-text"
+                minlength="20"
+                maxlength="30000"
+                required
+                placeholder="Paste a passage from your own notes…"
+              ></textarea></label
+            ><button class="primary" id="add-note">
+              Add to source shelf <span>↗</span>
+            </button>
+          </form>
+          <div id="documents" class="documents"></div>
+          <p class="small">
+            Removing a note also erases its quoted text from saved plans.
+          </p>
+        </aside>
+        <section class="research-panel panel">
+          <div class="step">02 / TRACE A QUESTION</div>
+          <h2>Find what your notes say.</h2>
+          <form id="question-form">
+            <label
+              >What do you want to understand?<textarea
+                id="question"
+                minlength="3"
+                maxlength="1000"
+                placeholder="How does binary search reduce the search space?"
+                required
+              ></textarea>
+            </label>
+            <div class="ask-actions">
+              <button class="primary" id="ask">
+                Find source evidence <span>↗</span></button
+              ><label class="time-label"
+                >Study time<select id="minutes">
+                  <option value="10">10 min</option>
+                  <option value="25" selected>25 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">60 min</option>
+                  <option value="120">120 min</option>
+                </select></label
+              ><button id="make-plan" class="secondary" type="button" disabled>
+                Make a study plan
+              </button>
+            </div>
+          </form>
+          <p class="model-note">
+            TF-IDF retrieves matching text; it does not generate an answer or
+            verify your notes. Relevance is text overlap, not confidence.
+          </p>
+          <div id="evidence" class="evidence">
+            <div class="empty">
+              <span>⌁</span>
+              <h3>A useful answer starts with a trace.</h3>
+              <p>
+                Add notes and ask a focused question. If no passage matches, we
+                say so.
+              </p>
+            </div>
+          </div>
+          <div id="trace" class="trace"></div>
+        </section>
+      </div>
+      <section class="panel plan-panel">
+        <div class="section-head">
+          <div>
+            <div class="step">03 / TURN EVIDENCE INTO PRACTICE</div>
+            <h2>A plan, with a paper trail.</h2>
+          </div>
+          <select id="history" aria-label="Saved study plans">
+            <option value="">No saved plans</option>
+          </select>
+        </div>
+        <p class="muted">
+          Minutes divide your available time. Review intervals are simple
+          planning choices, not predictions of mastery.
+        </p>
+        <div id="plan" class="plan-empty">
+          Your next study session will appear here.
+        </div>
+      </section>
+      <footer>
+        <span>NO CLOUD MODEL CALLS · NO SHARING OR SUBMISSION</span
+        ><a
+          href="https://launchpad-hacks.devpost.com/rules"
+          target="_blank"
+          rel="noreferrer"
+          >Private competition draft · approval pending ↗</a
+        >
+      </footer>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
