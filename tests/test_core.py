@@ -137,6 +137,23 @@ class WorkspaceTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.workspace.get_plan(first)
 
+    def test_plans_reflect_source_deletion_with_a_bounded_query_count(self):
+        self.add_search()
+        for _ in range(30):
+            self.workspace.create_plan("binary search", 10)
+        self.workspace.delete_document(self.workspace.plans()[0]["tasks"][0]["citation"]["document_id"])
+        queries = []
+        self.workspace.connection.set_trace_callback(queries.append)
+        try:
+            listed = self.workspace.plans()
+        finally:
+            self.workspace.connection.set_trace_callback(None)
+        self.assertEqual(len(listed), 30)
+        self.assertFalse(listed[0]["tasks"][0]["source_available"])
+        # The previous implementation ran one plan query plus one documents
+        # query per plan (61 statements at the cap); two statements is the budget.
+        self.assertLessEqual(len(queries), 3)
+
     def test_invalid_questions_budgets_and_reviews(self):
         for question in ("", "  ", 5, "x" * 1001):
             with self.assertRaises(ValueError):

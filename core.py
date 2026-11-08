@@ -190,22 +190,33 @@ class Workspace:
         self.connection.commit()
         return self.get_plan(plan["id"])
 
+    def _digest_map(self):
+        """document_id -> current digest; the single authority for source availability."""
+        return {d["id"]: d["digest"] for d in self.documents()}
+
+    def _attach_availability(self, plan, digests):
+        """Mark each task against current digests; the plan is freshly parsed JSON, so in-place marking is safe."""
+        for task in plan["tasks"]:
+            task["source_available"] = (
+                digests.get(task["citation"]["document_id"]) == task["citation"]["digest"]
+            )
+        return plan
+
     def get_plan(self, pid):
         row = self.connection.execute("SELECT payload FROM study_plans WHERE id=?", (pid,)).fetchone()
         if not row:
             raise KeyError("Plan not found")
-        plan = json.loads(row[0])
-        current = {d["id"]: d["digest"] for d in self.documents()}
-        for task in plan["tasks"]:
-            task["source_available"] = (
-                current.get(task["citation"]["document_id"]) == task["citation"]["digest"]
-            )
-        return plan
+        return self._attach_availability(json.loads(row[0]), self._digest_map())
 
     def plans(self):
+        # One digest map plus one payload query, instead of one plan query and
+        # one documents query per plan (61 statements at the 30-plan cap).
+        digests = self._digest_map()
         return [
-            self.get_plan(row[0])
-            for row in self.connection.execute("SELECT id FROM study_plans ORDER BY rowid DESC LIMIT 30")
+            self._attach_availability(json.loads(row[0]), digests)
+            for row in self.connection.execute(
+                "SELECT payload FROM study_plans ORDER BY rowid DESC LIMIT 30"
+            )
         ]
 
     def review(self, pid, tid, rating):
@@ -233,9 +244,13 @@ class Workspace:
         return self.get_plan(pid)
 
     def stats(self):
+        # COUNT queries instead of materialising rows: len(self.plans()) parsed
+        # every stored payload just to be counted. create_plan trims history to
+        # 30 rows, so the plans count matches len(self.plans()) in every
+        # reachable state.
         return {
-            "documents": len(self.documents()),
-            "plans": len(self.plans()),
+            "documents": self.connection.execute("SELECT count(*) FROM documents").fetchone()[0],
+            "plans": self.connection.execute("SELECT count(*) FROM study_plans").fetchone()[0],
             "review_events": self.connection.execute("SELECT count(*) FROM review_events").fetchone()[0],
             "mode": "local_only",
             "external_requests": 0,
