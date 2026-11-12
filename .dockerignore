@@ -1,0 +1,13 @@
+# Keep private data out of the image: `COPY . .` would otherwise bake the
+# local SQLite database (users' notes) and any local overrides into the
+# published layer. Mirrors .gitignore.
+.git
+.gitignore
+local-data/
+*.db
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+tests/

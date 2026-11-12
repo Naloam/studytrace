@@ -37,6 +37,18 @@ class ApiTests(unittest.TestCase):
             self.assertIn("default-src 'self'", r.headers["content-security-policy"])
             self.assertEqual(r.headers["cache-control"], "no-store")
 
+    def test_private_data_and_caches_stay_out_of_source_archives(self):
+        root = Path(__file__).resolve().parents[1]
+        gitignore = (root / ".gitignore").read_text()
+        dockerignore = (root / ".dockerignore").read_text()
+        # README: "Nothing from local-data/ belongs in a source archive" —
+        # git commits and docker images are both source archives.
+        for marker in ("local-data", "__pycache__", ".venv"):
+            self.assertIn(marker, gitignore)
+            self.assertIn(marker, dockerignore)
+        self.assertIn(".env", dockerignore)
+        self.assertIn("*.db", gitignore)
+
     def test_full_evidence_plan_review_export_and_deletion_flow(self):
         p = self.plan()
         task = p["tasks"][0]

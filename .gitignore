@@ -1,0 +1,15 @@
+# Private local data: the SQLite database stores users' notes and must
+# never enter a commit (README: "Nothing from local-data/ belongs in a
+# source archive"). ST_DB_PATH may point elsewhere, so *.db is covered too.
+local-data/
+*.db
+
+# Python run artifacts created by the documented setup and test runs
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.coverage
+
+# Local configuration overrides; the documented example stays tracked
+.env
