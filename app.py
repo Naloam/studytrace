@@ -35,13 +35,22 @@ class ReviewInput(BaseModel):
 
 def create_app(filename=None):
     filename = filename or os.environ.get("ST_DB_PATH", str(ROOT / "local-data/studytrace.db"))
-    Path(filename).parent.mkdir(parents=True, exist_ok=True)
-    Workspace(filename).close()
     api = FastAPI(title="StudyTrace", docs_url=None, redoc_url=None)
     api.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"])
 
+    # 数据库目录/文件的创建推迟到首次请求：模块级 `app = create_app()` 在
+    # import 时就建库，会让每次跑测试或 `import app` 都在仓库里留下
+    # local-data/studytrace.db。uvicorn 部署不受影响——首个请求完成同样的
+    # 初始化（代价是路径不可写的错误从启动时推迟到首个请求）。
+    db_ready = False
+
     @contextmanager
     def workspace():
+        nonlocal db_ready
+        if not db_ready:
+            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+            Workspace(filename).close()
+            db_ready = True
         w = Workspace(filename)
         try:
             yield w
