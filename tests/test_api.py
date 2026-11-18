@@ -1,3 +1,4 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -129,3 +130,24 @@ class ApiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_import_side_effect_free_and_lazy_db_creation(self):
+        """import app 不得落盘；首个请求才惰性建库。"""
+        import importlib
+
+        import app as app_module
+
+        with tempfile.TemporaryDirectory() as tmp:
+            env_db = str(Path(tmp) / "nested" / "studytrace.db")
+            try:
+                with patch.dict(os.environ, {"ST_DB_PATH": env_db}):
+                    reloaded = importlib.reload(app_module)
+                    self.assertFalse(
+                        Path(env_db).exists(), "import 不应创建数据库或其父目录"
+                    )
+                    with TestClient(reloaded.app) as client:
+                        self.assertEqual(client.get("/api/stats").status_code, 200)
+                    self.assertTrue(Path(env_db).exists(), "首个请求应完成惰性初始化")
+            finally:
+                importlib.reload(app_module)  # 恢复默认环境的模块状态
